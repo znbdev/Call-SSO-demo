@@ -39,6 +39,14 @@ npm run dev
 npm run dev  -- -p 3006
 ```
 
+# 端口配置
+
+server.js
+
+```javascript
+const PORT = process.env.PORT || 3006;
+```
+
 生产模式：
 ```bash
 npm start

@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+require('dotenv').config(); // 这一行将加载 .env 文件
 
 const app = express();
 const PORT = process.env.PORT || 3006;
