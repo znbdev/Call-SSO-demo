@@ -14,9 +14,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 模拟的客户端配置（实际应该从配置文件或数据库获取）
 const SSO_CONFIG = {
   clientId: 'example_client_id',
-  publicKey: `-----BEGIN PUBLIC KEY-----
-YOUR_PUBLIC_KEY_HERE
------END PUBLIC KEY-----`
+  // 使用共享密钥而不是公钥
+  secret: 'your-shared-secret-key-for-jwt-verification'
 };
 
 // 首页路由
@@ -33,11 +32,9 @@ app.get('/sso/callback', (req, res) => {
   }
   
   try {
-    // 验证JWT令牌
-    const decoded = jwt.verify(token, SSO_CONFIG.publicKey, {
-      algorithms: ['RS256'],
-      issuer: 'sso-platform',
-      audience: 'sso-clients'
+    // 验证JWT令牌 - 使用共享密钥
+    const decoded = jwt.verify(token, SSO_CONFIG.secret, {
+      algorithms: ['HS256']
     });
     
     // 验证client_id
@@ -70,10 +67,9 @@ app.get('/api/user', (req, res) => {
   }
   
   try {
-    const decoded = jwt.verify(token, SSO_CONFIG.publicKey, {
-      algorithms: ['RS256'],
-      issuer: 'sso-platform',
-      audience: 'sso-clients'
+    // 使用共享密钥进行验证
+    const decoded = jwt.verify(token, SSO_CONFIG.secret, {
+      algorithms: ['HS256']
     });
     
     res.json({
