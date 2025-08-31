@@ -69,3 +69,9 @@ npm start
 4. SSO系统重定向回应用的回调URL (`/sso/callback`)
 5. 服务端验证JWT令牌并设置HttpOnly Cookie
 6. 用户在应用中保持登录状态，直到主动退出或令牌过期
+
+# 传输门
+
+### SSO服务
+
+[SSO](https://github.com/znbdev/SSO)
