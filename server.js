@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const fs = require('fs');
 require('dotenv').config(); // 这一行将加载 .env 文件
 
 const app = express();
@@ -15,8 +16,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 模拟的客户端配置（实际应该从配置文件或数据库获取）
 const SSO_CONFIG = {
   clientId: 'example_client_id',
-  // 使用共享密钥而不是公钥
-  secret: 'your-shared-secret-key-for-jwt-verification'
+  // 使用RSA公钥和私钥
+  privateKeyPath: path.join(__dirname, 'private_key.pem'),
+  publicKeyPath: path.join(__dirname, 'public_key.pem')
 };
 
 // 首页路由
@@ -33,9 +35,10 @@ app.get('/sso/callback', (req, res) => {
   }
   
   try {
-    // 验证JWT令牌 - 使用共享密钥
-    const decoded = jwt.verify(token, SSO_CONFIG.secret, {
-      algorithms: ['HS256']
+    // 验证JWT令牌 - 使用RSA公钥
+    const publicKey = fs.readFileSync(SSO_CONFIG.publicKeyPath);
+    const decoded = jwt.verify(token, publicKey, {
+      algorithms: ['RS256']
     });
     
     // 验证client_id
@@ -68,9 +71,10 @@ app.get('/api/user', (req, res) => {
   }
   
   try {
-    // 使用共享密钥进行验证
-    const decoded = jwt.verify(token, SSO_CONFIG.secret, {
-      algorithms: ['HS256']
+    // 使用RSA公钥进行验证
+    const publicKey = fs.readFileSync(SSO_CONFIG.publicKeyPath);
+    const decoded = jwt.verify(token, publicKey, {
+      algorithms: ['RS256']
     });
     
     res.json({
