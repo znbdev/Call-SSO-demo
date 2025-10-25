@@ -42,21 +42,23 @@ app.get('/sso/callback', (req, res) => {
     if (decoded.client_id !== SSO_CONFIG.clientId) {
       return res.status(400).send('无效的客户端ID');
     }
-    
-    // 设置HttpOnly Cookie
-    res.cookie('sso_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // 生产环境使用HTTPS
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000 // 24小时
-    });
-    
-    // 重定向到首页，此时用户已登录
-    res.redirect('/');
-  } catch (error) {
-    console.error('JWT验证失败:', error);
-    res.status(401).send('令牌验证失败');
+  } catch (err) {
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).send('JWT验证失败: ' + err.message);
+    }
+    return res.status(500).send('服务器内部错误');
   }
+  
+  // 设置HttpOnly Cookie
+  res.cookie('sso_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // 生产环境使用HTTPS
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24小时
+  });
+  
+  // 重定向到首页，此时用户已登录
+  res.redirect('/');
 });
 
 // API路由 - 获取当前用户信息
